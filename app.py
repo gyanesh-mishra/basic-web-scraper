@@ -5,7 +5,7 @@ import sys
 import requests
 import os
 
-URL = os.getenv('SWU_URL', 'Please provide a valid URL')
+URL = os.getenv('URL', 'Please provide a valid URL')
 XPATH = os.getenv(
     'XPATH', "//*[@id='page-top']/main/ui-view/section/div[3]/div[2]/div/div[2]")
 SLACKBOT_TOKEN = os.getenv('SLACKBOT_TOKEN', 'Please provide a valid token')
@@ -14,15 +14,21 @@ SLACKBOT_CHANNEL = os.getenv(
 
 
 def check_xpath():
+    # Setup headless chrome
     options = webdriver.ChromeOptions()
     options.add_argument('headless')
     driver = webdriver.Chrome(options=options)
-    driver.get(URL)
-    time.sleep(5)
-    winner_element = driver.find_elements_by_xpath(XPATH)
 
-    for element in winner_element:
-        send_slack_message(element.text)
+    # Navigate to given URL
+    driver.get(URL)
+    # Wait for webpage to load
+    time.sleep(10)
+
+    # Find XPATH element and inform if found
+    elements_to_find = driver.find_elements_by_xpath(XPATH)
+    if elements_to_find:
+        for element in elements_to_find:
+            send_slack_message(element.text)
         return True
 
     return False
